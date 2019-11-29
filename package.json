@@ -1,0 +1,19 @@
+{
+  "name": "personal-webpage",
+  "version": "1.0.0",
+  "description": "A personal webpage hosted on Glitch",
+  "main": "index.js",
+  "scripts": {
+    "test": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Peperman66/Kubova-stranka.git"
+  },
+  "author": "Jakub Ondroušek",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Peperman66/Kubova-stranka/issues"
+  },
+  "homepage": "https://github.com/Peperman66/Kubova-stranka#readme"
+}
