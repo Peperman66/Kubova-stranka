@@ -30,7 +30,7 @@ router.all('/:timer', (req, res) => {
             } else if (!row) {
                 res.status(404).json({ statusCode: 404, error: config.errorMessages.timerAPI.notFound});
             } else if (Date.parse(row.expiryDate) > Date.now()){
-                let deleteQuery = sql`DELETE FROM timers WHERE id IS ?;`
+                let deleteQuery = sql`DELETE FROM timers WHERE id IS ?;`;
                 db.run(deleteQuery, [row.id], (err) => {
                     if (err) {
                         res.status(500).json({ error: err.message });
@@ -55,7 +55,7 @@ router.all('/:timer', (req, res) => {
         if (err) {
             res.status(500).json({ statusCode: 500, error: err.message });
         }
-    }
+    });
 });
 
 module.exports = router;
