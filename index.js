@@ -12,9 +12,9 @@ app.use(cors());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
+app.use('/api/timers', require('./routers/timers.js'));
+
 app.use(express.static('./web'));
-
-
 
 app.listen(port, () => {
     console.log(`Server listening at port ${port}`);
