@@ -1,0 +1,9 @@
+{
+    "errorMessages": {
+        "timerAPI": {
+            "methodNotAllowed": "The specified HTTP method is not allowed on this path.",
+            "notFound": "The timer entry was not found.",
+            "expired": "The specified timer is expired."
+        }
+    }
+}
