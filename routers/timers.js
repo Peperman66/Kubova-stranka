@@ -4,9 +4,9 @@ const sqlite3 = require('sqlite3').verbose();
 const config = require('../config.json');
 
 router.all('/', (req, res) => {
-    if (req.method === 'get') {
+    if (req.method === 'GET') {
 
-    } else if (req.method === 'post') {
+    } else if (req.method === 'POST') {
 
     } else {
         res.status(405).json({ statusCode: 405, error: config.errorMessages.timerAPI.methodNotAllowed });
