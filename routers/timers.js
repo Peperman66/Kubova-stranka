@@ -1,15 +1,59 @@
 const express = require('express');
 const router = express.Router();
-const sqlite3 = require('sqlite3').verbose();
+const bettersqlite3 = require('better-sqlite3');
 const config = require('../config.json');
 
 router.all('/', (req, res) => {
+    let db;
+    try {
+        db = new bettersqlite3(`./${config.databases.databaseDirectory}/${config.databases.general.databaseName}`);
+    } catch (err) {
+        res.status(500).json({ statusCode: 500, error: err.message });
+        console.error(err);
+        return;
+    }
+    let createQuery = `
+    CREATE TABLE IF NOT EXISTS timers (Id TEXT NOT NULL UNIQUE, 
+    Name TEXT NOT NULL UNIQUE, 
+    Title TEXT, 
+    Header TEXT NOT NULL, 
+    Footer TEXT, 
+    EndDate DATETIME NOT NULL, 
+    ExpiryDate DATETIME,
+    IsPublic BOOLEAN NOT NULL DEFAULT 1,
+    IsLocked BOOLEAN NOT NULL DEFAULT 0,
+    PasswordHash TEXT, 
+    Salt TEXT,
+    PRIMARY KEY(Id, Name));`;
+    try {
+        db.prepare(createQuery).run();
+    } catch (err) {
+        res.status(500).json({ statusCode: 500, error: err.message });
+        console.error(err);
+        return;
+    }
     if (req.method === 'GET') {
+        let searchQuery = `SELECT Id, Name, Title, Header, Footer, EndDate, ExpiryDate FROM Timers WHERE IsPublic = 1;`
+        let result;
+        try {
+            result = db.prepare(searchQuery).all();
+        } catch (err) {
+            res.status(500).json({ statusCode: 500, error: err.message });
+            console.error(err);
+            return;
+        }
+        if (result.length === 0) {
+            res.status(404).json({ statusCode: 404, error: config.errorMessages.timerAPI.noTimers });
+        } else {
+            res.status(200).json(result);
+        }
+
 
     } else if (req.method === 'POST') {
-
+        
     } else {
         res.status(405).json({ statusCode: 405, error: config.errorMessages.timerAPI.methodNotAllowed });
+        return;
     }
 });
 
