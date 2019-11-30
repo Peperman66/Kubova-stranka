@@ -3,6 +3,7 @@
         "timerAPI": {
             "methodNotAllowed": "The specified HTTP method is not allowed on this path.",
             "notFound": "The timer entry was not found.",
+            "noTimers": "No timers were found in the database.",
             "expired": "The specified timer is expired."
         }
     }
