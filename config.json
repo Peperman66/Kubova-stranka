@@ -6,5 +6,11 @@
             "noTimers": "No timers were found in the database.",
             "expired": "The specified timer is expired."
         }
+    },
+    "databases": {
+        "databaseDirectory": "db",
+        "general": {
+            "databaseName": "general.sqlite3"
+        }
     }
 }
