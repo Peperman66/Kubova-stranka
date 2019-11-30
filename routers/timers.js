@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const sqlite3 = require('sqlite3').verbose();
-const config = require('../config.js');
+const config = require('../config.json');
 
 router.all('/', (req, res) => {
     if (req.method === 'get') {
