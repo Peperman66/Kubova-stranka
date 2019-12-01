@@ -199,6 +199,7 @@ router.all('/:timer', (req, res) => {
             return;
         } else if (req.param('password') == null) {
             res.status(401).json({statusCode: 401, error: config.errorMessages.timerAPI.unauthorizedToView});
+            res.status(401).json({statusCode: 401, error: config.errorMessages.timerAPI.unauthorized});
             db.close();
             return;
         } else {
@@ -226,7 +227,76 @@ router.all('/:timer', (req, res) => {
         }
 
     } else if (req.method === 'PUT') {
-
+        let searchQuery = `SELECT id, name, title, header, footer, endDate, expiryDate, isPublic, isLocked, passwordHash, salt FROM timers WHERE ? in (id, name);`;
+        let searchResult;
+        try {
+            searchResult =  db.prepare(searchQuery).get(req.params.timer.toString());
+        } catch (err) {
+            res.status(500).json({ statusCode: 500, error: err.message });
+            console.error(err);
+            db.close();
+            return;
+        }
+        let allowedParams = ["name", "title", "header", "footer", "endDate", "expiryDate"];
+        if (!searchResult) {
+            res.status(404).json({ statusCode: 404, error: config.errorMessages.timerAPI.notFound });
+            db.close();
+            return;
+        } else if (searchResult.isLocked == false) {
+            res.status(401).json({statusCode: 401, error: config.errorMessages.timerAPI.cannotEditOrDeleteNonLockedTimers});
+            db.close();
+            return;
+        } else if (!req.param("password")) {
+            res.status(401).json({statusCode: 401, error: config.errorMessages.timerAPI.unauthorized});
+            db.close();
+            return;
+        } else {
+            passwordSalt = searchResult.salt;
+            let hash = crypto.createHmac('sha512', passwordSalt);
+            hash.update(req.param('password'));
+            passwordHash = hash.digest('hex');
+            if (passwordHash != searchResult.passwordHash) {
+                res.status(403).json(config.errorMessages.timerAPI.forbidden);
+                db.close();
+                return;
+            } else if (!Object.keys(req.body).some(param => allowedParams.includes(param))) {
+                res.status(400).json({ statusCode: 400, error: config.errorMessages.timerAPI.noValidParamsForPutRequest });
+                db.close();
+                return;
+            } else {
+                let id = searchResult.id;
+                let name = searchResult.name;
+                let title = req.param("title") || searchResult.title;
+                let header = req.param("header") || searchResult.header;
+                let footer = req.param("footer") || searchResult.footer;
+                let endDate = new Date(req.param("endDate")).getTime() || searchResult.endDate;
+                let expiryDate = searchResult.expiryDate;
+                if (req.param("expiryDate") != null ) {
+                    if (endDate + (7 * 24 * 60 * 60 * 1000) < new Date(req.param("expiryDate")).getTime()){
+                        res.status(400).json({statusCode: 400, error: config.errorMessages.timerAPI.invalidExpiryDate});
+                        db.close();
+                        return;
+                    } else {
+                        expiryDate = new Date(req.param("expiryDate")).getTime();
+                    }
+                } else {
+                    expiryDate = endDate + (7 * 24 * 60 * 60 * 1000);
+                }
+                let updateQuery = `UPDATE timers SET name = ?, title = ?, header = ?, footer = ?, endDate = ?, expiryDate = ? WHERE id = ?;`;
+                try {
+                    db.prepare(updateQuery).run(name, title, header, footer, endDate, expiryDate, id);
+                } catch (err) {
+                    res.status(500).json({ statusCode: 500, error: err.message });
+                    db.close();
+                    console.error(err);
+                    return;
+                }
+                res.status(204).end();
+                db.close();
+                return;
+            }
+        }
+        
     } else if (req.method === 'DELETE') {
 
     } else {
