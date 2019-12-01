@@ -6,9 +6,12 @@
             "noTimers": "No timers were found in the database.",
             "missingParametersOnCreating": "Request is missing important parameters, such as endDate or header.",
             "alreadyExistingName": "Timer with the requested name already exists. Try choosing different name.",
-            "unauthorizedToView": "The timer that was requested is locked. The password parameter is missing.",
-            "forbiddenToView": "The timer that was requested is locked. The specified password is wrong.",
-            "timerCantBePublicIfPasswordSpecified": "Timer can't be public and locked at the same time. Choose if you want your timer to be public, private or locked by password."
+            "unauthorized": "The timer that was requested is locked. The password parameter is missing.",
+            "forbidden": "The timer that was requested is locked. The specified password is wrong.",
+            "timerCantBePublicIfPasswordSpecified": "Timer can't be public and locked at the same time. Choose if you want your timer to be public, private or locked by password.",
+            "cannotEditOrDeleteNonLockedTimers": "You can't edit or delete timers which aren't protected by password. If you want to edit some properties, wait until the timer expires, and then you can create new timer.",
+            "noValisParamsForPutRequest": "At least 1 valid parameter other than password is required in order to edit a timer.",
+            "invalidExpiryDate": "The expiryDate parameter is invalid."
         }
     },
     "databases": {

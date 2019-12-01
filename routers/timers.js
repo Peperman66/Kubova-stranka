@@ -52,7 +52,7 @@ router.all('/', (req, res) => {
             db.close();
             return;
         }
-        if (result.length === 0) {
+        if (!result) {
             res.status(404).json({ statusCode: 404, error: config.errorMessages.timerAPI.noTimers });
         } else {
             res.status(200).json({ statusCode: 200, result: result});
@@ -198,7 +198,6 @@ router.all('/:timer', (req, res) => {
             db.close();
             return;
         } else if (req.param('password') == null) {
-            res.status(401).json({statusCode: 401, error: config.errorMessages.timerAPI.unauthorizedToView});
             res.status(401).json({statusCode: 401, error: config.errorMessages.timerAPI.unauthorized});
             db.close();
             return;
@@ -215,12 +214,13 @@ router.all('/:timer', (req, res) => {
                     header: searchResult.header,
                     footer: searchResult.footer,
                     endDate: searchResult.endDate,
+                    expiryDate: searchResult.expiryDate,
                     isPublic: searchResult.isPublic,
                     isLocked: searchResult.isLocked}});
                 db.close();
                 return;
             } else {
-                res.status(403).json({statucCode: 403, error: config.errorMessages.timerAPI.forbiddenToView});
+                res.status(403).json({statucCode: 403, error: config.errorMessages.timerAPI.forbidden});
                 db.close();
                 return;
             }
