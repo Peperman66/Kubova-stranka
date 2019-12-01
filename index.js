@@ -12,7 +12,7 @@ app.use(cors());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
-app.use('/api/timers', require('./routers/timers.js'));
+app.use('/api', require('./routers/api.js'));
 
 app.use(express.static('./web'));
 

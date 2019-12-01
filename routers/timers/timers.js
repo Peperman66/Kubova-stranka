@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const bettersqlite3 = require('better-sqlite3');
 const crypto = require('crypto');
-const config = require('../config.json');
+const config = require('../../config.json');
 
 router.all('/', (req, res) => {
     let db;
@@ -180,7 +180,7 @@ router.all('/:timer', (req, res) => {
             db.close();
             return;
         }
-        if (searchResult.length === 0) {
+        if (!searchResult) {
             res.status(404).json({ statusCode: 404, error: config.errorMessages.timerAPI.notFound });
             db.close();
             return;
