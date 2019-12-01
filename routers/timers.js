@@ -296,9 +296,55 @@ router.all('/:timer', (req, res) => {
                 return;
             }
         }
-        
-    } else if (req.method === 'DELETE') {
 
+    } else if (req.method === 'DELETE') {
+        let searchQuery = `SELECT id, name, isLocked, passwordHash, salt FROM timers WHERE ? in (id, name);`;
+        let searchResult;
+        try {
+            searchResult = db.prepare(searchQuery).get(req.params.timer.toString());
+        } catch (err) {
+            res.status(500).json({ statusCode: 500, error: err.message });
+            console.error(err);
+            db.close();
+            return;
+        }
+        if (!searchResult) {
+            res.status(404).json({ statusCode: 404, error: config.errorMessages.timerAPI.notFound });
+            db.close();
+            return;
+        } else if (searchResult.isLocked == false) {
+            res.status(401).json({ statusCode: 403, error: config.errorMessages.timerAPI.cannotEditOrDeleteNonLockedTimers });
+            db.close();
+            return;
+        } else if (!req.param("password")) {
+            res.status(401).json({ statusCode: 401, error: config.errorMessages.timerAPI.unauthorized });
+            db.close();
+            return;
+        } else {
+            passwordSalt = searchResult.salt;
+            let hash = crypto.createHmac('sha512', passwordSalt);
+            hash.update(req.param('password'));
+            passwordHash = hash.digest('hex');
+            if (passwordHash != searchResult.passwordHash) {
+                res.status(403).json(config.errorMessages.timerAPI.forbidden);
+                db.close();
+                return;
+            } else {
+                let deleteQuery = `DELETE FROM timers WHERE id = ?;`;
+                try {
+                    db.prepare(deleteQuery).run(searchResult.id);
+                } catch (err) {
+                    res.status(500).json({ statusCode: 500, error: err.message });
+                    console.error(err);
+                    db.close();
+                    return;
+                }
+                res.status(204).end();
+                db.close();
+                return;
+            }
+        }
+        
     } else {
         res.status(405).json({ statusCode: 405, error: config.errorMessages.timerAPI.methodNotAllowed });
     }
