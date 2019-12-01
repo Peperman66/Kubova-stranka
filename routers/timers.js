@@ -14,17 +14,17 @@ router.all('/', (req, res) => {
         return;
     }
     let createQuery = `
-    CREATE TABLE IF NOT EXISTS timers (Id TEXT NOT NULL UNIQUE, 
-    Name TEXT NOT NULL UNIQUE, 
-    Title TEXT, 
-    Header TEXT NOT NULL, 
-    Footer TEXT, 
-    EndDate DATETIME NOT NULL, 
-    ExpiryDate DATETIME,
-    IsPublic BOOLEAN NOT NULL DEFAULT 1,
-    IsLocked BOOLEAN NOT NULL DEFAULT 0,
-    PasswordHash TEXT, 
-    Salt TEXT,
+    CREATE TABLE IF NOT EXISTS timers (id TEXT NOT NULL UNIQUE, 
+    name TEXT NOT NULL UNIQUE, 
+    title TEXT, 
+    header TEXT NOT NULL, 
+    footer TEXT, 
+    endDate DATETIME NOT NULL, 
+    expiryDate DATETIME,
+    isPublic BOOLEAN NOT NULL DEFAULT 1,
+    isLocked BOOLEAN NOT NULL DEFAULT 0,
+    passwordHash TEXT, 
+    salt TEXT,
     PRIMARY KEY(Id, Name));`;
     try {
         db.prepare(createQuery).run();
@@ -36,7 +36,7 @@ router.all('/', (req, res) => {
     }
 
     if (req.method === 'GET') {
-        let searchQuery = `SELECT Id, Name, Title, Header, Footer, EndDate, ExpiryDate FROM Timers WHERE IsPublic = 1;`;
+        let searchQuery = `SELECT id, name, title, header, footer, endDate, expiryDate, isLocked FROM timers WHERE isPublic = 1;`;
         let result;
         try {
             result = db.prepare(searchQuery).all();
@@ -58,7 +58,7 @@ router.all('/', (req, res) => {
             return;
         }
 
-        let checkQuery = `SELECT Id, Name FROM Timers;`;
+        let checkQuery = `SELECT id, name FROM Timers;`;
         let checkResult;
         try {
             checkResult = db.prepare(checkQuery).all();
@@ -83,7 +83,7 @@ router.all('/', (req, res) => {
                 return;
             }
         }
-        let insertQuery = `INSERT INTO timers (Id, Name, Title, Header, Footer, EndDate, ExpiryDate, IsPublic, IsLocked, PasswordHash, Salt) VALUES (?,?,?,?,?,?,?,?,?,?,?);`;
+        let insertQuery = `INSERT INTO timers (id, name, title, header, footer, endDate, expiryDate, isPublic, isLocked, passwordHash, salt) VALUES (?,?,?,?,?,?,?,?,?,?,?);`;
         let passwordHash = null;
         let passwordSalt = null;
         let isLocked = 0;
