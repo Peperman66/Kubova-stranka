@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const bettersqlite3 = require('better-sqlite3');
+const crypto = require('crypto');
 const config = require('../config.json');
 
 router.all('/', (req, res) => {
@@ -50,7 +51,76 @@ router.all('/', (req, res) => {
 
 
     } else if (req.method === 'POST') {
-        
+        if (req.param('endDate') == null || req.param('header') == null) {
+            res.status(400).json({ statusCode: 400, error: config.errorMessages.timerAPI.missingParametersOnCreating});
+            return;
+        }
+
+        let checkQuery = `SELECT Id, Name FROM Timers;`;
+        let checkResult;
+        try {
+            checkResult = db.prepare(checkQuery).all();
+        } catch (err) {
+            res.status(500).json({ statusCode: 500, error: err.message });
+            console.error(err);
+            return;
+        }
+        let randomId;
+        let randomName;
+        do {
+            randomId = Math.round(Math.random() * Math.floor(1000000)).toString();
+        } while (CheckIfIdExists(checkResult, randomId));
+        if (!req.param("name")){
+            do {
+                randomName = crypto.randomBytes(8).toString('hex');
+            } while (CheckIfNameExists(checkResult, randomName));
+        } else {
+            if (CheckIfNameExists(checkResult, req.param("name"))) {
+                res.status(409).json({statusCode: 409, error: config.errorMessages.timerAPI.alreadyExistingName});
+                return;
+            }
+        }
+        let insertQuery = `INSERT INTO timers (Id, Name, Title, Header, Footer, EndDate, ExpiryDate, IsPublic, IsLocked, PasswordHash, Salt) VALUES (?,?,?,?,?,?,?,?,?,?,?);`;
+        let passwordHash = null;
+        let passwordSalt = null;
+        let isLocked = 0;
+        if (req.param('password')) {
+            passwordSalt = crypto.randomBytes(16).toString('hex');
+            let hash = crypto.createHmac('sha512', salt);
+            hash.update(req.param('password'));
+            passwordHash = hash.digest('hex');
+            isLocked = 1;
+        }
+        let endDate = new Date(req.param('endDate')).getTime();
+        let expiryDate = new Date(req.param('expiryDate')).getTime() || Date.parse(req.param('endDate')) + (7 * 24 * 60 * 60 * 1000)
+        try {
+            db.prepare(insertQuery).run(
+                randomId, 
+                req.param('name') || randomName, 
+                req.param('title'), 
+                req.param('header'), 
+                req.param('footer'), 
+                endDate, 
+                expiryDate, 
+                req.param('isPublic') || 1, 
+                isLocked, 
+                passwordHash, 
+                passwordSalt);
+        } catch (err) {
+            res.status(500).json({ statusCode: 500, error: err.message });
+            console.error(err);
+            return;
+        }
+        res.status(201).json({ statusCode: 201, result: { 
+            id: randomId, 
+            name: randomName, 
+            title: req.param('Title'),
+            header: req.param('header'), 
+            endDate: endDate, 
+            expiryDate: expiryDate, 
+            isPublic: req.param("isPublic") || 1, 
+            isLocked: req.param("isLocked") || 0}});
+
     } else {
         res.status(405).json({ statusCode: 405, error: config.errorMessages.timerAPI.methodNotAllowed });
         return;
