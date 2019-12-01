@@ -80,19 +80,20 @@ router.all('/', (req, res) => {
         } else {
             if (CheckIfNameExists(checkResult, req.param("name"))) {
                 res.status(409).json({statusCode: 409, error: config.errorMessages.timerAPI.alreadyExistingName});
+                db.close();
                 return;
             }
         }
         let insertQuery = `INSERT INTO timers (id, name, title, header, footer, endDate, expiryDate, isPublic, isLocked, passwordHash, salt) VALUES (?,?,?,?,?,?,?,?,?,?,?);`;
         let passwordHash = null;
         let passwordSalt = null;
-        let isLocked = 0;
+        let isLocked = false;
         if (req.param('password')) {
             passwordSalt = crypto.randomBytes(16).toString('hex');
-            let hash = crypto.createHmac('sha512', salt);
+            let hash = crypto.createHmac('sha512', passwordSalt);
             hash.update(req.param('password'));
             passwordHash = hash.digest('hex');
-            isLocked = 1;
+            isLocked = true;
         }
         let endDate = new Date(req.param('endDate')).getTime();
         let expiryDate = new Date(req.param('expiryDate')).getTime() || Date.parse(req.param('endDate')) + (7 * 24 * 60 * 60 * 1000)
@@ -122,8 +123,8 @@ router.all('/', (req, res) => {
             header: req.param('header'), 
             endDate: endDate, 
             expiryDate: expiryDate, 
-            isPublic: req.param("isPublic") || 1, 
             isLocked: req.param("isLocked") || 0}});
+            isPublic: req.param("isPublic") || true, 
 
     } else {
         res.status(405).json({ statusCode: 405, error: config.errorMessages.timerAPI.methodNotAllowed });
@@ -138,7 +139,7 @@ router.all('/:timer', (req, res) => {
     let timer = req.params.timer.toString();
     let db;
     try {
-        db = new bettersqlite3.Database(`../${config.databases.databaseDirectory}/${config.databases.general.databaseName}`);
+        db = new bettersqlite3(`./${config.databases.databaseDirectory}/${config.databases.general.databaseName}`);
     } catch (err) {
         res.status(500).json({ statusCode: 500, error: err.message });
         console.error(err);
@@ -159,7 +160,7 @@ router.all('/:timer', (req, res) => {
             res.status(404).json({ statusCode: 404, error: config.errorMessages.timerAPI.notFound });
             db.close();
             return;
-        } else if (isLocked == false){
+        } else if (searchResult.isLocked == false){
             res.status(200).json({ statusCode: 200, result: {
                 id: searchResult.id, 
                 name: searchResult.name, 
@@ -176,7 +177,7 @@ router.all('/:timer', (req, res) => {
             return;
         } else {
             passwordSalt = searchResult.salt
-            let hash = crypto.createHmac('sha512', salt);
+            let hash = crypto.createHmac('sha512', passwordSalt);
             hash.update(req.param('password'));
             passwordHash = hash.digest('hex');
             if (passwordHash === searchResult.passwordHash) {
@@ -204,7 +205,7 @@ router.all('/:timer', (req, res) => {
     } else if (req.method === 'DELETE') {
 
     } else {
-        res.status(405).json({ statusCode: 405, error: config.errorMessages.timerAPI.methodNotAllowed});
+        res.status(405).json({ statusCode: 405, error: config.errorMessages.timerAPI.methodNotAllowed });
     }
 });
 
