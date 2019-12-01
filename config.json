@@ -8,7 +8,8 @@
             "missingParametersOnCreating": "Request is missing important parameters, such as endDate or header.",
             "alreadyExistingName": "Timer with the requested name already exists. Try choosing different name.",
             "unauthorizedToView": "The timer that was requested is locked. The password parameter is missing.",
-            "forbiddenToView": "The timer that was requested is locked. The specified password is wrong."
+            "forbiddenToView": "The timer that was requested is locked. The specified password is wrong.",
+            "timerCantBePublicIfPasswordSpecified": "Timer can't be public and locked at the same time. Choose if you want your timer to be public, private or locked by password."
         }
     },
     "databases": {

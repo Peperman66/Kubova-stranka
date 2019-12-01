@@ -91,7 +91,7 @@ router.all('/', (req, res) => {
         let isPublic = req.param('isPublic');
         if (req.param('password')) {
             if (isPublic == true) {
-                res.status(409).json({ statusCode: 409, error: config.errorMessages.timerAPI.timerCantBePublicIfPasswordIsSpecified });
+                res.status(409).json({ statusCode: 409, error: config.errorMessages.timerAPI.timerCantBePublicIfPasswordSpecified });
                 db.close();
                 return;
             }
