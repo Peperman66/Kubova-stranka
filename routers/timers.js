@@ -178,3 +178,19 @@ router.all('/:timer', (req, res) => {
 });
 
 module.exports = router;
+
+function CheckIfNameExists(DBOutput, searchedName) {
+    for (let value of DBOutput) {
+        if (value.Name == searchedName) 
+            return true; 
+    };
+    return false; 
+}
+
+function CheckIfIdExists(DBOutput, searchedId) {
+    for(let value of DBOutput) {
+        if (value.Name === searchedId)
+            return true;
+    };
+    return false;
+}
