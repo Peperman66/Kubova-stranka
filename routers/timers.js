@@ -243,7 +243,7 @@ router.all('/:timer', (req, res) => {
             db.close();
             return;
         } else if (searchResult.isLocked == false) {
-            res.status(401).json({statusCode: 401, error: config.errorMessages.timerAPI.cannotEditOrDeleteNonLockedTimers});
+            res.status(401).json({statusCode: 403, error: config.errorMessages.timerAPI.cannotEditOrDeleteNonLockedTimers});
             db.close();
             return;
         } else if (!req.param("password")) {
