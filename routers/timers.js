@@ -35,6 +35,12 @@ router.all('/', (req, res) => {
         return;
     }
 
+    try {
+        DeleteExpiredTimers(db);
+    } catch (err) {
+        res.status(500).json({statusCode: 500, error: err.message});
+    }
+
     if (req.method === 'GET') {
         let searchQuery = `SELECT id, name, title, header, footer, endDate, expiryDate, isLocked FROM timers WHERE isPublic = 1;`;
         let result;
@@ -152,6 +158,13 @@ router.all('/:timer', (req, res) => {
         console.error(err);
         return;
     }
+
+    try {
+        DeleteExpiredTimers(db);
+    } catch (err) {
+        res.status(500).json({ statusCode: 500, error: err.message });
+    }
+
     if (req.method === 'GET') {
         let searchQuery = `SELECT id, name, title, header, footer, endDate, expiryDate, isPublic, isLocked, passwordHash, salt FROM timers WHERE ? in (id, name);`;
         let searchResult;
@@ -235,4 +248,9 @@ function CheckIfIdExists(DBOutput, searchedId) {
             return true;
     };
     return false;
+}
+
+function DeleteExpiredTimers(db) {
+    let searchQuery = `DELETE FROM timers WHERE expiryDate < ?;`;
+    db.prepare(searchQuery).run(Date.now());
 }
