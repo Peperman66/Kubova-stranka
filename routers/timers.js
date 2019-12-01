@@ -132,49 +132,80 @@ router.all('/', (req, res) => {
     db.close();
 });
 
+
+
 router.all('/:timer', (req, res) => {
     let timer = req.params.timer.toString();
     let db;
-
+    try {
+        db = new bettersqlite3.Database(`../${config.databases.databaseDirectory}/${config.databases.general.databaseName}`);
+    } catch (err) {
+        res.status(500).json({ statusCode: 500, error: err.message });
+        console.error(err);
+        return;
+    }
     if (req.method === 'GET') {
-        db = sqlite3.Database(config.dbDirectory + 'timers.sqlite3', sqlite3.OPEN_READWRITE, (err) => {
-            if (err) {
-                res.status(500).json({ statusCode: 500, error: err.message });
-            }
-        });
-        let query = sql`SELECT id, name, title, header, footer, enddate, expirydate FROM timers WHERE ? in (id, name);`;
-        db.get(query, [timer], (err, row) => {
-            if (err) {
-                res.status(500).json({ statusCode: 500, error: err.message });
-            } else if (!row) {
-                res.status(404).json({ statusCode: 404, error: config.errorMessages.timerAPI.notFound});
-            } else if (Date.parse(row.expiryDate) > Date.now()){
-                let deleteQuery = sql`DELETE FROM timers WHERE id IS ?;`;
-                db.run(deleteQuery, [row.id], (err) => {
-                    if (err) {
-                        res.status(500).json({ error: err.message });
-                    }
-                });
-                res.status(404).json({ statusCode: 404, error: config.errorMessages.timerAPI.expired});
+        let searchQuery = `SELECT id, name, title, header, footer, endDate, isPublic, isLocked, passwordHash, salt FROM timers WHERE ? in (id, name);`;
+        let searchResult;
+        try {
+            searchResult = db.prepare(searchQuery).get(timer);
+        } catch (err) {
+            res.status(500).json({ statusCode: 500, error: err.message });
+            console.error(err);
+            db.close();
+            return;
+        }
+        if (searchResult.length === 0) {
+            res.status(404).json({ statusCode: 404, error: config.errorMessages.timerAPI.notFound });
+            db.close();
+            return;
+        } else if (isLocked == false){
+            res.status(200).json({ statusCode: 200, result: {
+                id: searchResult.id, 
+                name: searchResult.name, 
+                title: searchResult.title, 
+                header: searchResult.header, 
+                footer: searchResult.footer, 
+                endDate: searchResult.endDate,
+                isPublic: searchResult.isPublic}});
+            db.close();
+            return;
+        } else if (req.param('password') == null) {
+            res.status(401).json({statusCode: 401, error: config.errorMessages.timerAPI.unauthorizedToView});
+            db.close();
+            return;
+        } else {
+            passwordSalt = searchResult.salt
+            let hash = crypto.createHmac('sha512', salt);
+            hash.update(req.param('password'));
+            passwordHash = hash.digest('hex');
+            if (passwordHash === searchResult.passwordHash) {
+                res.status(200).json({statusCode: 200, result: {
+                    id: searchResult.id,
+                    name: searchResult.name,
+                    title: searchResult.title,
+                    header: searchResult.header,
+                    footer: searchResult.footer,
+                    endDate: searchResult.endDate,
+                    isPublic: searchResult.isPublic}});
+                db.close();
+                return;
             } else {
-                res.status(200).json(row);
+                res.status(403).json({statucCode: 403, error: config.errorMessages.timerAPI.forbiddenToView});
+                db.close();
+                return;
             }
-        });
+        }
 
-    } else if (req.method === 'POST'){
-        
+    } else if (req.method === 'POST') {
+
     } else if (req.method === 'PUT') {
-    
+
     } else if (req.method === 'DELETE') {
-        
+
     } else {
         res.status(405).json({ statusCode: 405, error: config.errorMessages.timerAPI.methodNotAllowed});
     }
-    db.close((err) => {
-        if (err) {
-            res.status(500).json({ statusCode: 500, error: err.message });
-        }
-    });
 });
 
 module.exports = router;
