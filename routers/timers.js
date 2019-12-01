@@ -88,12 +88,19 @@ router.all('/', (req, res) => {
         let passwordHash = null;
         let passwordSalt = null;
         let isLocked = false;
+        let isPublic = req.param('isPublic');
         if (req.param('password')) {
+            if (isPublic == true) {
+                res.status(409).json({ statusCode: 409, error: config.errorMessages.timerAPI.timerCantBePublicIfPasswordIsSpecified });
+                db.close();
+                return;
+            }
             passwordSalt = crypto.randomBytes(16).toString('hex');
             let hash = crypto.createHmac('sha512', passwordSalt);
             hash.update(req.param('password'));
             passwordHash = hash.digest('hex');
             isLocked = true;
+            isPublic = false;
         }
         let endDate = new Date(req.param('endDate')).getTime();
         let expiryDate = new Date(req.param('expiryDate')).getTime() || Date.parse(req.param('endDate')) + (7 * 24 * 60 * 60 * 1000)
@@ -106,7 +113,7 @@ router.all('/', (req, res) => {
                 req.param('footer'), 
                 endDate, 
                 expiryDate, 
-                req.param('isPublic') || 1, 
+                isPublic, 
                 isLocked, 
                 passwordHash, 
                 passwordSalt);
@@ -123,8 +130,8 @@ router.all('/', (req, res) => {
             header: req.param('header'), 
             endDate: endDate, 
             expiryDate: expiryDate, 
-            isLocked: req.param("isLocked") || 0}});
             isPublic: req.param("isPublic") || true, 
+            isLocked: isLocked}});
 
     } else {
         res.status(405).json({ statusCode: 405, error: config.errorMessages.timerAPI.methodNotAllowed });
