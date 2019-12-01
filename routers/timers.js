@@ -31,8 +31,10 @@ router.all('/', (req, res) => {
     } catch (err) {
         res.status(500).json({ statusCode: 500, error: err.message });
         console.error(err);
+        db.close();
         return;
     }
+
     if (req.method === 'GET') {
         let searchQuery = `SELECT Id, Name, Title, Header, Footer, EndDate, ExpiryDate FROM Timers WHERE IsPublic = 1;`
         let result;
@@ -41,6 +43,7 @@ router.all('/', (req, res) => {
         } catch (err) {
             res.status(500).json({ statusCode: 500, error: err.message });
             console.error(err);
+            db.close();
             return;
         }
         if (result.length === 0) {
@@ -63,6 +66,7 @@ router.all('/', (req, res) => {
         } catch (err) {
             res.status(500).json({ statusCode: 500, error: err.message });
             console.error(err);
+            db.close();
             return;
         }
         let randomId;
@@ -109,6 +113,7 @@ router.all('/', (req, res) => {
         } catch (err) {
             res.status(500).json({ statusCode: 500, error: err.message });
             console.error(err);
+            db.close();
             return;
         }
         res.status(201).json({ statusCode: 201, result: { 
@@ -125,6 +130,7 @@ router.all('/', (req, res) => {
         res.status(405).json({ statusCode: 405, error: config.errorMessages.timerAPI.methodNotAllowed });
         return;
     }
+    db.close();
 });
 
 router.all('/:timer', (req, res) => {
