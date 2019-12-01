@@ -4,7 +4,11 @@
             "methodNotAllowed": "The specified HTTP method is not allowed on this path.",
             "notFound": "The timer entry was not found.",
             "noTimers": "No timers were found in the database.",
-            "expired": "The specified timer is expired."
+            "expired": "The specified timer is expired.",
+            "missingParametersOnCreating": "Request is missing important parameters, such as endDate or header.",
+            "alreadyExistingName": "Timer with the requested name already exists. Try choosing different name.",
+            "unauthorizedToView": "The timer that was requested is locked. The password parameter is missing.",
+            "forbiddenToView": "The timer that was requested is locked. The specified password is wrong."
         }
     },
     "databases": {
