@@ -153,7 +153,7 @@ router.all('/:timer', (req, res) => {
         return;
     }
     if (req.method === 'GET') {
-        let searchQuery = `SELECT id, name, title, header, footer, endDate, isPublic, isLocked, passwordHash, salt FROM timers WHERE ? in (id, name);`;
+        let searchQuery = `SELECT id, name, title, header, footer, endDate, expiryDate, isPublic, isLocked, passwordHash, salt FROM timers WHERE ? in (id, name);`;
         let searchResult;
         try {
             searchResult = db.prepare(searchQuery).get(timer);
@@ -175,7 +175,9 @@ router.all('/:timer', (req, res) => {
                 header: searchResult.header, 
                 footer: searchResult.footer, 
                 endDate: searchResult.endDate,
-                isPublic: searchResult.isPublic}});
+                expiryDate: searchResult.expiryDate,
+                isPublic: searchResult.isPublic,
+                isLocked: searchResult.isLocked}});
             db.close();
             return;
         } else if (req.param('password') == null) {
@@ -195,7 +197,8 @@ router.all('/:timer', (req, res) => {
                     header: searchResult.header,
                     footer: searchResult.footer,
                     endDate: searchResult.endDate,
-                    isPublic: searchResult.isPublic}});
+                    isPublic: searchResult.isPublic,
+                    isLocked: searchResult.isLocked}});
                 db.close();
                 return;
             } else {
