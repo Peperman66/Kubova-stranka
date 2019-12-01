@@ -93,10 +93,10 @@ router.all('/', (req, res) => {
         let insertQuery = `INSERT INTO timers (id, name, title, header, footer, endDate, expiryDate, isPublic, isLocked, passwordHash, salt) VALUES (?,?,?,?,?,?,?,?,?,?,?);`;
         let passwordHash = null;
         let passwordSalt = null;
-        let isLocked = false;
-        let isPublic = req.param('isPublic');
+        let isLocked = 0;
+        let isPublic = parseInt(req.param('isPublic')); //Ensure to parse from true/false to 1/0
         if (req.param('password')) {
-            if (isPublic == true) {
+            if (isPublic == 1) {
                 res.status(409).json({ statusCode: 409, error: config.errorMessages.timerAPI.timerCantBePublicIfPasswordSpecified });
                 db.close();
                 return;
@@ -105,11 +105,15 @@ router.all('/', (req, res) => {
             let hash = crypto.createHmac('sha512', passwordSalt);
             hash.update(req.param('password'));
             passwordHash = hash.digest('hex');
-            isLocked = true;
-            isPublic = false;
+            isLocked = 1;
+            isPublic = 0;
+        } else {
+            if (!isPublic) {
+                isPublic = 1;
+            }
         }
         let endDate = new Date(req.param('endDate')).getTime();
-        let expiryDate = new Date(req.param('expiryDate')).getTime() || Date.parse(req.param('endDate')) + (7 * 24 * 60 * 60 * 1000)
+        let expiryDate = new Date(req.param('expiryDate')).getTime() || Date.parse(req.param('endDate')).getTime() + (7 * 24 * 60 * 60 * 1000)
         try {
             db.prepare(insertQuery).run(
                 randomId, 
@@ -136,7 +140,7 @@ router.all('/', (req, res) => {
             header: req.param('header'), 
             endDate: endDate, 
             expiryDate: expiryDate, 
-            isPublic: req.param("isPublic") || true, 
+            isPublic: req.param("isPublic") || 1, 
             isLocked: isLocked}});
 
     } else {
