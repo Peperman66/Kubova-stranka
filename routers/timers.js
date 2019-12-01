@@ -36,7 +36,7 @@ router.all('/', (req, res) => {
     }
 
     if (req.method === 'GET') {
-        let searchQuery = `SELECT Id, Name, Title, Header, Footer, EndDate, ExpiryDate FROM Timers WHERE IsPublic = 1;`
+        let searchQuery = `SELECT Id, Name, Title, Header, Footer, EndDate, ExpiryDate FROM Timers WHERE IsPublic = 1;`;
         let result;
         try {
             result = db.prepare(searchQuery).all();
@@ -49,9 +49,8 @@ router.all('/', (req, res) => {
         if (result.length === 0) {
             res.status(404).json({ statusCode: 404, error: config.errorMessages.timerAPI.noTimers });
         } else {
-            res.status(200).json(result);
+            res.status(200).json({ statusCode: 200, result: result});
         }
-
 
     } else if (req.method === 'POST') {
         if (req.param('endDate') == null || req.param('header') == null) {
