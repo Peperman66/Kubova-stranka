@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+    <!DOCTYPE html>
+    <html>
+    
+        <head>
+            <meta charset="UTF-8">
+    
+            <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+            <link rel="stylesheet" type="text/css" href="/timers/index.css">
+    
+            <script>
+                let timerId = window.location.href.split('/').pop();
+                fetch(window.location.origin + '/api/timers/' + timerId)
+                .then(response => response.json())
+                .then(timerResponse => {
+
+                    let title = timerResponse.result.title;
+                    let header = timerResponse.result.header;
+                    let footer = timerResponse.result.footer;
+                    let endText = timerResponse.result.endText;
+                    let endDate = timerResponse.result.endDate;
+                    
+                    document.getElementById("header").innerText = header;
+                    document.getElementById("footer").innerText = footer;
+
+                    if (title) {
+                        document.title = title;
+                    }
+
+                    let countDownDate = new Date(endDate).getTime();
+                    let x = setInterval(function () {
+                        let now = new Date().getTime();
+                        let distance = countDownDate - now;
+
+                        let days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                        let hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                        let minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                        let seconds = Math.floor((distance % (1000 * 60)) / 1000);
+                        let millis = Math.floor(distance % (1000));
+                        let milliseconds = "0000000".substring((millis + "").length, 3) + millis;
+
+                        document.getElementById("full").innerHTML = days + "d " + hours + "h " + minutes + "min " + seconds + "s " + milliseconds + "ms";
+                        document.getElementById("hours").innerHTML = days * 24 + hours + "h " + minutes + "min " + seconds + "s " + milliseconds + "ms";
+                        document.getElementById("minutes").innerHTML = (days * 24 + hours) * 60 + minutes + "min " + seconds + "s " + milliseconds + "ms";
+                        document.getElementById("seconds").innerHTML = ((days * 24 + hours) * 60 + minutes) * 60 + seconds + "s " + milliseconds + "ms";
+                        document.getElementById("milliseconds").innerHTML = (((days * 24 + hours) * 60 + minutes) * 60 + seconds) * 1000 + millis + "ms";
+                        document.getElementById("binary").innerHTML = ((((days * 24 + hours) * 60 + minutes) * 60 + seconds) * 1000 + millis).toString(2) + "ms";
+
+
+                        // If the count down is finished, write some text 
+                        if (distance < 0) {
+                            clearInterval(x);
+                            document.getElementById("full").innerHTML = endText;
+                            document.getElementById("hours").innerHTML = "";
+                            document.getElementById("minutes").innerHTML = "";
+                            document.getElementById("seconds").innerHTML = "";
+                            document.getElementById("milliseconds").innerHTML = "";
+                            document.getElementById("binary").innerHTML = "";
+                        }
+                    }, 1);
+                });
+            </script>
+        </head>
+    
+        <body>
+            <header>
+                <h1 id="header"></h1>
+            </header>
+            <!-- Display the countdown timer in an element -->
+            <p id="full"></p>
+            <p id="hours"></p>
+            <p id="minutes"></p>
+            <p id="seconds"></p>
+            <p id="milliseconds"></p>
+            <p id="binary"></p>
+            <footer>
+                <h3 id="footer"></h3>
+            </footer>
+        </body>
+    
+    </html>
+</html>

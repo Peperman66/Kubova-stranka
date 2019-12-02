@@ -1,0 +1,21 @@
+h1 {
+	color: #555555;
+	size: 12;
+}
+
+h2 {
+	color: #555555;
+}
+
+h3 {
+	color: #555555;
+}
+
+body {
+	background-color: #e2e2e2;
+	text-align: center;
+	color: #777777;
+	font-family: 'Roboto', sans-serif;
+	margin: auto;
+	/*font-family: 'Roboto', sans-serif;*/
+}
