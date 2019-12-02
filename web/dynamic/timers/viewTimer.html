@@ -12,17 +12,43 @@
         <link rel="stylesheet" type="text/css" href="/timers/index.css">
 
         <script>
-            let timerId = window.location.href.split('/').pop();
-            fetch(window.location.origin + '/api/timers/' + timerId)
-            .then(response => response.json())
-            .then(timerResponse => {
+            let noPasswordText = "The requested timer is protected under password. Please enter the password and press submit.";
+            let wrongPasswordText = "The entered password does not match with the password stored in database.";
 
-                let title = timerResponse.result.title;
-                let header = timerResponse.result.header;
-                let footer = timerResponse.result.footer;
-                let endText = timerResponse.result.endText;
-                let endDate = timerResponse.result.endDate;
+            let timerId = window.location.href.split('/').pop();
+            let title;
+            let header;
+            let footer;
+            let endText;
+            let endDate;
+
+            function getTimer(password) {
                 
+                let params = {};
+                if (password) {
+                    params = {headers:{'Content-Type': 'application/json'}, body:{password:password}};
+                }
+                fetch(window.location.origin + '/api/timers/' + timerId, params)
+                .then(response => response.json())
+                .then(timerResponse => {
+                    if (timerResponse.statusCode === 200) {
+                        title = timerResponse.result.title;
+                        header = timerResponse.result.header;
+                        footer = timerResponse.result.footer;
+                        endText = timerResponse.result.endText;
+                        endDate = timerResponse.result.endDate;
+                        startTimer();
+                    } else if (timerResponse.statusCode === 401) {
+                        $("#passwordText").innerText = noPasswordText;
+                        $("#passwordAlert").show();
+                    } else if (timerResponse.statusCode === 403) {
+                        $("#passwordText").innerText = wrongPasswordText;
+                        $("#passwordAlert").show();
+                    }
+                });
+            }
+            function startTimer() {
+            
                 document.getElementById("header").innerText = header;
                 document.getElementById("footer").innerText = footer;
 
@@ -60,26 +86,46 @@
                         document.getElementById("milliseconds").innerText = "";
                         document.getElementById("binary").innerText = "";
                     }
-                }, 1);
-            });
+                }, 10);
+            }
+
+            function loaded() {
+                $("form").on('submit', function (e) {
+                    $("#passwordAlert").hide();
+                    getTimer($("#passwordInput")[0].value);
+                    e.preventDefault();
+                });
+                getTimer();
+            }
         </script>
     </head>
 
-    <body>
+    <body onload="loaded()">
         <div class="container">
             <div class="row">
                 <div class="col text-center">
                     <header>
-                        <h1 id="header"></h1>
+                        <h1 id="header" class="display-3"></h1>
                     </header>
-                    <div id="full"></div>
-                    <div id="hours"></div>
-                    <div id="minutes"></div>
-                    <div id="seconds"></div>
-                    <div id="milliseconds"></div>
-                    <div id="binary"></div>
+                    <div class="alert alert-danger collapse" id="passwordAlert" role="alert">
+                        <strong>Oh no!</strong> <span id="passwordText">The requested timer is protected under password. Please enter the password and press submit.</span>
+                        <hr>
+                        <form id="passwordForm">
+                            <div class="form-group">
+                                Password:
+                                <input type="password" class="form-control" id="passwordInput">
+                            </div>
+                            <button type="submit" class="btn btn-primary">Submit</button>
+                        </form>
+                    </div>
+                    <h4 id="full"></h4>
+                    <h4 id="hours"></h4>
+                    <h4 id="minutes"></h4>
+                    <h4 id="seconds"></h4>
+                    <h4 id="milliseconds"></h4>
+                    <h4 id="binary"></h4>
                     <footer>
-                        <h3 id="footer"></h3>
+                        <h1 id="footer"></h1>
                     </footer>
                 </div>
             </div>
