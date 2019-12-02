@@ -53,7 +53,7 @@ router.all('/', (req, res) => {
             db.close();
             return;
         }
-        if (!result) {
+        if (result.length === 0) {
             res.status(404).json({ statusCode: 404, error: config.errorMessages.timerAPI.noTimers });
         } else {
             res.status(200).json({ statusCode: 200, result: result});
@@ -114,7 +114,7 @@ router.all('/', (req, res) => {
             }
         }
         let endDate = new Date(req.param('endDate')).getTime();
-        let expiryDate = new Date(req.param('expiryDate')).getTime() || Date.parse(req.param('endDate')).getTime() + (7 * 24 * 60 * 60 * 1000)
+        let expiryDate = new Date(req.param('expiryDate')).getTime() || new Date(req.param('endDate')).getTime() + (7 * 24 * 60 * 60 * 1000)
         try {
             db.prepare(insertQuery).run(
                 randomId, 
@@ -182,7 +182,7 @@ router.all('/:timer', (req, res) => {
             db.close();
             return;
         }
-        if (!searchResult) {
+        if (searchResult.length === 0) {
             res.status(404).json({ statusCode: 404, error: config.errorMessages.timerAPI.notFound });
             db.close();
             return;
@@ -241,8 +241,8 @@ router.all('/:timer', (req, res) => {
             db.close();
             return;
         }
-        if (!searchResult) {
         let allowedParams = ["name", "title", "header", "footer", "endText", "endDate", "expiryDate"];
+        if (searchResult.length === 0) {
             res.status(404).json({ statusCode: 404, error: config.errorMessages.timerAPI.notFound });
             db.close();
             return;
@@ -312,7 +312,7 @@ router.all('/:timer', (req, res) => {
             db.close();
             return;
         }
-        if (!searchResult) {
+        if (searchResult.length === 0) {
             res.status(404).json({ statusCode: 404, error: config.errorMessages.timerAPI.notFound });
             db.close();
             return;
@@ -358,7 +358,7 @@ module.exports = router;
 
 function CheckIfNameExists(DBOutput, searchedName) {
     for (let value of DBOutput) {
-        if (value.Name == searchedName) 
+        if (value.name == searchedName) 
             return true; 
     };
     return false; 
@@ -366,7 +366,7 @@ function CheckIfNameExists(DBOutput, searchedName) {
 
 function CheckIfIdExists(DBOutput, searchedId) {
     for(let value of DBOutput) {
-        if (value.Name === searchedId)
+        if (value.id === searchedId)
             return true;
     };
     return false;
