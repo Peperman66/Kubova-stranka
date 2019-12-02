@@ -19,6 +19,7 @@ router.all('/', (req, res) => {
     title TEXT, 
     header TEXT NOT NULL, 
     footer TEXT, 
+    endText TEXT NOT NULL, 
     endDate DATETIME NOT NULL, 
     expiryDate DATETIME,
     isPublic BOOLEAN NOT NULL DEFAULT 1,
@@ -42,7 +43,7 @@ router.all('/', (req, res) => {
     }
 
     if (req.method === 'GET') {
-        let searchQuery = `SELECT id, name, title, header, footer, endDate, expiryDate, isLocked FROM timers WHERE isPublic = 1;`;
+        let searchQuery = `SELECT id, name, title, header, footer, endText, endDate, expiryDate FROM timers WHERE isPublic = 1;`;
         let result;
         try {
             result = db.prepare(searchQuery).all();
@@ -59,7 +60,7 @@ router.all('/', (req, res) => {
         }
 
     } else if (req.method === 'POST') {
-        if (req.param('endDate') == null || req.param('header') == null) {
+        if (!req.param('endDate') || !req.param('header') || !req.param('endText')) {
             res.status(400).json({ statusCode: 400, error: config.errorMessages.timerAPI.missingParametersOnCreating});
             return;
         }
@@ -90,7 +91,7 @@ router.all('/', (req, res) => {
                 return;
             }
         }
-        let insertQuery = `INSERT INTO timers (id, name, title, header, footer, endDate, expiryDate, isPublic, isLocked, passwordHash, salt) VALUES (?,?,?,?,?,?,?,?,?,?,?);`;
+        let insertQuery = `INSERT INTO timers (id, name, title, header, footer, endText, endDate, expiryDate, isPublic, isLocked, passwordHash, salt) VALUES (?,?,?,?,?,?,?,?,?,?,?,?);`;
         let passwordHash = null;
         let passwordSalt = null;
         let isLocked = 0;
@@ -121,6 +122,7 @@ router.all('/', (req, res) => {
                 req.param('title'), 
                 req.param('header'), 
                 req.param('footer'), 
+                req.param('endText'),
                 endDate, 
                 expiryDate, 
                 isPublic, 
@@ -170,7 +172,7 @@ router.all('/:timer', (req, res) => {
     }
 
     if (req.method === 'GET') {
-        let searchQuery = `SELECT id, name, title, header, footer, endDate, expiryDate, isPublic, isLocked, passwordHash, salt FROM timers WHERE ? in (id, name);`;
+        let searchQuery = `SELECT id, name, title, header, footer, endText, endDate, expiryDate, isPublic, isLocked, passwordHash, salt FROM timers WHERE ? in (id, name);`;
         let searchResult;
         try {
             searchResult = db.prepare(searchQuery).get(timer);
@@ -191,6 +193,7 @@ router.all('/:timer', (req, res) => {
                 title: searchResult.title, 
                 header: searchResult.header, 
                 footer: searchResult.footer, 
+                endText: searchResult.endText,
                 endDate: searchResult.endDate,
                 expiryDate: searchResult.expiryDate,
                 isPublic: searchResult.isPublic,
@@ -213,6 +216,7 @@ router.all('/:timer', (req, res) => {
                     title: searchResult.title,
                     header: searchResult.header,
                     footer: searchResult.footer,
+                    endText: searchResult.endText,
                     endDate: searchResult.endDate,
                     expiryDate: searchResult.expiryDate,
                     isPublic: searchResult.isPublic,
@@ -237,8 +241,8 @@ router.all('/:timer', (req, res) => {
             db.close();
             return;
         }
-        let allowedParams = ["name", "title", "header", "footer", "endDate", "expiryDate"];
         if (!searchResult) {
+        let allowedParams = ["name", "title", "header", "footer", "endText", "endDate", "expiryDate"];
             res.status(404).json({ statusCode: 404, error: config.errorMessages.timerAPI.notFound });
             db.close();
             return;
