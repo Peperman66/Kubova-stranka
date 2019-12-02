@@ -1,83 +1,98 @@
 <!DOCTYPE html>
 <html>
-    <!DOCTYPE html>
-    <html>
-    
-        <head>
-            <meta charset="UTF-8">
-    
-            <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
-            <link rel="stylesheet" type="text/css" href="/timers/index.css">
-    
-            <script>
-                let timerId = window.location.href.split('/').pop();
-                fetch(window.location.origin + '/api/timers/' + timerId)
-                .then(response => response.json())
-                .then(timerResponse => {
 
-                    let title = timerResponse.result.title;
-                    let header = timerResponse.result.header;
-                    let footer = timerResponse.result.footer;
-                    let endText = timerResponse.result.endText;
-                    let endDate = timerResponse.result.endDate;
-                    
-                    document.getElementById("header").innerText = header;
-                    document.getElementById("footer").innerText = footer;
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-                    if (title) {
-                        document.title = title;
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+            integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+
+        <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+        <link rel="stylesheet" type="text/css" href="/timers/index.css">
+
+        <script>
+            let timerId = window.location.href.split('/').pop();
+            fetch(window.location.origin + '/api/timers/' + timerId)
+            .then(response => response.json())
+            .then(timerResponse => {
+
+                let title = timerResponse.result.title;
+                let header = timerResponse.result.header;
+                let footer = timerResponse.result.footer;
+                let endText = timerResponse.result.endText;
+                let endDate = timerResponse.result.endDate;
+                
+                document.getElementById("header").innerText = header;
+                document.getElementById("footer").innerText = footer;
+
+                if (title) {
+                    document.title = title;
+                }
+
+                let countDownDate = new Date(endDate).getTime();
+                let x = setInterval(function () {
+                    let now = new Date().getTime();
+                    let distance = countDownDate - now;
+
+                    let days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                    let hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                    let minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                    let seconds = Math.floor((distance % (1000 * 60)) / 1000);
+                    let millis = Math.floor(distance % (1000));
+                    let milliseconds = "0000000".substring((millis + "").length, 3) + millis;
+
+                    document.getElementById("full").innerText = days + "d " + hours + "h " + minutes + "min " + seconds + "s " + milliseconds + "ms";
+                    document.getElementById("hours").innerText = days * 24 + hours + "h " + minutes + "min " + seconds + "s " + milliseconds + "ms";
+                    document.getElementById("minutes").innerText = (days * 24 + hours) * 60 + minutes + "min " + seconds + "s " + milliseconds + "ms";
+                    document.getElementById("seconds").innerText = ((days * 24 + hours) * 60 + minutes) * 60 + seconds + "s " + milliseconds + "ms";
+                    document.getElementById("milliseconds").innerText = (((days * 24 + hours) * 60 + minutes) * 60 + seconds) * 1000 + millis + "ms";
+                    document.getElementById("binary").innerText = ((((days * 24 + hours) * 60 + minutes) * 60 + seconds) * 1000 + millis).toString(2) + "ms";
+
+
+                    // If the count down is finished, write some text 
+                    if (distance < 0) {
+                        clearInterval(x);
+                        document.getElementById("full").innerText = endText;
+                        document.getElementById("hours").innerText = "";
+                        document.getElementById("minutes").innerText = "";
+                        document.getElementById("seconds").innerText = "";
+                        document.getElementById("milliseconds").innerText = "";
+                        document.getElementById("binary").innerText = "";
                     }
+                }, 1);
+            });
+        </script>
+    </head>
 
-                    let countDownDate = new Date(endDate).getTime();
-                    let x = setInterval(function () {
-                        let now = new Date().getTime();
-                        let distance = countDownDate - now;
+    <body>
+        <div class="container">
+            <div class="row">
+                <div class="col text-center">
+                    <header>
+                        <h1 id="header"></h1>
+                    </header>
+                    <div id="full"></div>
+                    <div id="hours"></div>
+                    <div id="minutes"></div>
+                    <div id="seconds"></div>
+                    <div id="milliseconds"></div>
+                    <div id="binary"></div>
+                    <footer>
+                        <h3 id="footer"></h3>
+                    </footer>
+                </div>
+            </div>
+        </div>
+        <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
+            integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n"
+            crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
+            integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
+            crossorigin="anonymous"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"
+            integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6"
+            crossorigin="anonymous"></script>
+    </body>
 
-                        let days = Math.floor(distance / (1000 * 60 * 60 * 24));
-                        let hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                        let minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-                        let seconds = Math.floor((distance % (1000 * 60)) / 1000);
-                        let millis = Math.floor(distance % (1000));
-                        let milliseconds = "0000000".substring((millis + "").length, 3) + millis;
-
-                        document.getElementById("full").innerHTML = days + "d " + hours + "h " + minutes + "min " + seconds + "s " + milliseconds + "ms";
-                        document.getElementById("hours").innerHTML = days * 24 + hours + "h " + minutes + "min " + seconds + "s " + milliseconds + "ms";
-                        document.getElementById("minutes").innerHTML = (days * 24 + hours) * 60 + minutes + "min " + seconds + "s " + milliseconds + "ms";
-                        document.getElementById("seconds").innerHTML = ((days * 24 + hours) * 60 + minutes) * 60 + seconds + "s " + milliseconds + "ms";
-                        document.getElementById("milliseconds").innerHTML = (((days * 24 + hours) * 60 + minutes) * 60 + seconds) * 1000 + millis + "ms";
-                        document.getElementById("binary").innerHTML = ((((days * 24 + hours) * 60 + minutes) * 60 + seconds) * 1000 + millis).toString(2) + "ms";
-
-
-                        // If the count down is finished, write some text 
-                        if (distance < 0) {
-                            clearInterval(x);
-                            document.getElementById("full").innerHTML = endText;
-                            document.getElementById("hours").innerHTML = "";
-                            document.getElementById("minutes").innerHTML = "";
-                            document.getElementById("seconds").innerHTML = "";
-                            document.getElementById("milliseconds").innerHTML = "";
-                            document.getElementById("binary").innerHTML = "";
-                        }
-                    }, 1);
-                });
-            </script>
-        </head>
-    
-        <body>
-            <header>
-                <h1 id="header"></h1>
-            </header>
-            <!-- Display the countdown timer in an element -->
-            <p id="full"></p>
-            <p id="hours"></p>
-            <p id="minutes"></p>
-            <p id="seconds"></p>
-            <p id="milliseconds"></p>
-            <p id="binary"></p>
-            <footer>
-                <h3 id="footer"></h3>
-            </footer>
-        </body>
-    
-    </html>
 </html>
