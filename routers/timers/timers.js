@@ -182,7 +182,7 @@ router.all('/:timer', (req, res) => {
             db.close();
             return;
         }
-        if (searchResult.length === 0) {
+        if (!searchResult || searchResult.length === 0) {
             res.status(404).json({ statusCode: 404, error: config.errorMessages.timerAPI.notFound });
             db.close();
             return;
@@ -242,7 +242,7 @@ router.all('/:timer', (req, res) => {
             return;
         }
         let allowedParams = ["name", "title", "header", "footer", "endText", "endDate", "expiryDate"];
-        if (searchResult.length === 0) {
+        if (!searchResult || searchResult.length === 0) {
             res.status(404).json({ statusCode: 404, error: config.errorMessages.timerAPI.notFound });
             db.close();
             return;
@@ -312,7 +312,7 @@ router.all('/:timer', (req, res) => {
             db.close();
             return;
         }
-        if (searchResult.length === 0) {
+        if (!searchResult || searchResult.length === 0) {
             res.status(404).json({ statusCode: 404, error: config.errorMessages.timerAPI.notFound });
             db.close();
             return;
