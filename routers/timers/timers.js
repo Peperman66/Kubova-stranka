@@ -96,15 +96,24 @@ router.all('/', (req, res) => {
         let passwordSalt = null;
         let isLocked = 0;
         let isPublic = parseInt(req.param('isPublic')); //Ensure to parse from true/false to 1/0
-        if (req.param('password')) {
+        if (req.headers.authorization) {
             if (isPublic == 1) {
                 res.status(409).json({ statusCode: 409, error: config.errorMessages.timerAPI.timerCantBePublicIfPasswordSpecified });
                 db.close();
                 return;
             }
+            let authHeader = req.headers.authorization.split(' ');
+            if (authHeader[0] !== 'Basic') {
+                res.status(400).json({statusCode: 400, error: config.errorMessages.timerAPI.badAuthScheme});
+                db.close();
+                return;
+            }
+            let base64Credentials = authHeader[1];
+            let credentials = Buffer.from(base64Credentials, 'base64').toString('ascii');
+            let password = credentials.split(':')[1];
             passwordSalt = crypto.randomBytes(16).toString('hex');
             let hash = crypto.createHmac('sha512', passwordSalt);
-            hash.update(req.param('password'));
+            hash.update(password);
             passwordHash = hash.digest('hex');
             isLocked = 1;
             isPublic = 0;
@@ -200,14 +209,18 @@ router.all('/:timer', (req, res) => {
                 isLocked: searchResult.isLocked}});
             db.close();
             return;
-        } else if (req.param('password') == null) {
+        } else if (!req.headers.authorization) {
+            res.set('WWW-Authenticate', 'Basic');
             res.status(401).json({statusCode: 401, error: config.errorMessages.timerAPI.unauthorized});
             db.close();
             return;
         } else {
+            let base64Credentials = authHeader[1];
+            let credentials = Buffer.from(base64Credentials, 'base64').toString('ascii');
+            let password = credentials.split(':')[1];
             passwordSalt = searchResult.salt
             let hash = crypto.createHmac('sha512', passwordSalt);
-            hash.update(req.param('password'));
+            hash.update(password);
             passwordHash = hash.digest('hex');
             if (passwordHash === searchResult.passwordHash) {
                 res.status(200).json({statusCode: 200, result: {
@@ -250,14 +263,18 @@ router.all('/:timer', (req, res) => {
             res.status(401).json({statusCode: 403, error: config.errorMessages.timerAPI.cannotEditOrDeleteNonLockedTimers});
             db.close();
             return;
-        } else if (!req.param("password")) {
+        } else if (!req.headers.authorization) {
+            res.set('WWW-Authenticate', 'Basic');
             res.status(401).json({statusCode: 401, error: config.errorMessages.timerAPI.unauthorized});
             db.close();
             return;
         } else {
+            let base64Credentials = authHeader[1];
+            let credentials = Buffer.from(base64Credentials, 'base64').toString('ascii');
+            let password = credentials.split(':')[1];
             passwordSalt = searchResult.salt;
             let hash = crypto.createHmac('sha512', passwordSalt);
-            hash.update(req.param('password'));
+            hash.update(password);
             passwordHash = hash.digest('hex');
             if (passwordHash != searchResult.passwordHash) {
                 res.status(403).json(config.errorMessages.timerAPI.forbidden);
@@ -320,14 +337,18 @@ router.all('/:timer', (req, res) => {
             res.status(401).json({ statusCode: 403, error: config.errorMessages.timerAPI.cannotEditOrDeleteNonLockedTimers });
             db.close();
             return;
-        } else if (!req.param("password")) {
+        } else if (!req.header.authorization) {
+            res.set('WWW-Authenticate', 'Basic');
             res.status(401).json({ statusCode: 401, error: config.errorMessages.timerAPI.unauthorized });
             db.close();
             return;
         } else {
+            let base64Credentials = authHeader[1];
+            let credentials = Buffer.from(base64Credentials, 'base64').toString('ascii');
+            let password = credentials.split(':')[1];
             passwordSalt = searchResult.salt;
             let hash = crypto.createHmac('sha512', passwordSalt);
-            hash.update(req.param('password'));
+            hash.update(password);
             passwordHash = hash.digest('hex');
             if (passwordHash != searchResult.passwordHash) {
                 res.status(403).json(config.errorMessages.timerAPI.forbidden);
