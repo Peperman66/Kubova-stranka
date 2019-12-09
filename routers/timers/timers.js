@@ -206,7 +206,7 @@ router.all('/:timer', (req, res) => {
             db.close();
             return;
         } else {
-            let base64Credentials = authHeader[1];
+            let base64Credentials = req.headers.authorization.split(' ')[1];
             let credentials = Buffer.from(base64Credentials, 'base64').toString('ascii');
             let password = credentials.split(':')[1];
             passwordSalt = searchResult.salt
@@ -260,7 +260,7 @@ router.all('/:timer', (req, res) => {
             db.close();
             return;
         } else {
-            let base64Credentials = authHeader[1];
+            let base64Credentials = res.headers.authorization.split(' ')[1];
             let credentials = Buffer.from(base64Credentials, 'base64').toString('ascii');
             let password = credentials.split(':')[1];
             passwordSalt = searchResult.salt;
@@ -334,7 +334,7 @@ router.all('/:timer', (req, res) => {
             db.close();
             return;
         } else {
-            let base64Credentials = authHeader[1];
+            let base64Credentials = res.headers.authorization.split(' ')[1];
             let credentials = Buffer.from(base64Credentials, 'base64').toString('ascii');
             let password = credentials.split(':')[1];
             passwordSalt = searchResult.salt;
