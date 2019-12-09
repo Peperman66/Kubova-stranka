@@ -201,7 +201,6 @@ router.all('/:timer', (req, res) => {
             db.close();
             return;
         } else if (!req.headers.authorization) {
-            res.set('WWW-Authenticate', 'Basic');
             res.status(401).json({statusCode: 401, error: config.errorMessages.timerAPI.unauthorized});
             db.close();
             return;
@@ -255,7 +254,6 @@ router.all('/:timer', (req, res) => {
             db.close();
             return;
         } else if (!req.headers.authorization) {
-            res.set('WWW-Authenticate', 'Basic');
             res.status(401).json({statusCode: 401, error: config.errorMessages.timerAPI.unauthorized});
             db.close();
             return;
@@ -329,7 +327,6 @@ router.all('/:timer', (req, res) => {
             db.close();
             return;
         } else if (!req.header.authorization) {
-            res.set('WWW-Authenticate', 'Basic');
             res.status(401).json({ statusCode: 401, error: config.errorMessages.timerAPI.unauthorized });
             db.close();
             return;
