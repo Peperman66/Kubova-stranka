@@ -96,24 +96,15 @@ router.all('/', (req, res) => {
         let passwordSalt = null;
         let isLocked = 0;
         let isPublic = parseInt(req.param('isPublic')); //Ensure to parse from true/false to 1/0
-        if (req.headers.authorization) {
+        if (req.param("password")) {
             if (isPublic == 1) {
                 res.status(409).json({ statusCode: 409, error: config.errorMessages.timerAPI.timerCantBePublicIfPasswordSpecified });
                 db.close();
                 return;
             }
-            let authHeader = req.headers.authorization.split(' ');
-            if (authHeader[0] !== 'Basic') {
-                res.status(400).json({statusCode: 400, error: config.errorMessages.timerAPI.badAuthScheme});
-                db.close();
-                return;
-            }
-            let base64Credentials = authHeader[1];
-            let credentials = Buffer.from(base64Credentials, 'base64').toString('ascii');
-            let password = credentials.split(':')[1];
             passwordSalt = crypto.randomBytes(16).toString('hex');
             let hash = crypto.createHmac('sha512', passwordSalt);
-            hash.update(password);
+            hash.update(req.param("password"));
             passwordHash = hash.digest('hex');
             isLocked = 1;
             isPublic = 0;
