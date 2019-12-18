@@ -52,4 +52,25 @@ router.post('/:webhookId/:webhookToken/:service', (req, res) => {
     }
 });
 
+router.head('/:webhookId/:webhookToken/:service', (req, res) => {
+    const discordAddress = `/api/webhooks/${req.params.webhookId}/${req.params.webhookToken}`;
+    let requestOptions = {
+        hostname: 'discordapp.com',
+        port: 443,
+        path: discordAddress,
+        method: 'HEAD',
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    }
+    https.request(requestOptions, (response) => {
+        if (response.statusCode == 200) {
+            res.headers = response.headers;
+            res.status(200).end();
+        } else {
+            res.status(response.statusCode).end()
+        }
+    })
+})
+
 module.exports = router;
