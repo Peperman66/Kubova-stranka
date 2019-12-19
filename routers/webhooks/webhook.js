@@ -47,6 +47,7 @@ router.post('/:webhookId/:webhookToken/:service', (req, res) => {
         } else {
             res.header('Retry-After', '600');
             res.status(504).end();
+            console.log(body)
             return;
         }
         webhookBody = JSON.stringify(webhookBody);
