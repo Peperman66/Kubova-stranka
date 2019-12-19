@@ -30,8 +30,8 @@ router.post('/:webhookId/:webhookToken/:service', (req, res) => {
             webhookBody.embeds[0].title = `[${body.model.name}] A new label was added to ${"``" + body.action.data.card.name + "``"}`;
             let description = `\`\`${labelName}\`\` label was added to the ${"``" + body.action.data.card.name + "``"} card.`
             webhookBody.embeds[0].description = description;
-            if (body.actions.data.label.color != null) {
-                webhookBody.embeds[0].color = JSON.parse(fs.readFileSync(path.resolve('./labelColors.json')))[body.action.data.label.color];
+            if (body.action.data.label.color != null) {
+                webhookBody.embeds[0].color = JSON.parse(fs.readFileSync(path.resolve(__dirname, './labelColors.json')))[body.action.data.label.color];
             } 
         } else if (body.action.type === 'removeLabelFromCard') {
             let labelName = body.action.data.label.name;
@@ -42,7 +42,7 @@ router.post('/:webhookId/:webhookToken/:service', (req, res) => {
             let description = `\`\`${labelName}\`\` label was removed from the ${"``" + body.action.data.card.name + "``"} card.`
             webhookBody.embeds[0].description = description;
             if (body.action.data.label.color != null) {
-                webhookBody.embeds[0].color = JSON.parse(fs.readFileSync(path.resolve('./labelColors.json')))[body.action.data.label.color];
+                webhookBody.embeds[0].color = JSON.parse(fs.readFileSync(path.resolve(__dirname, './labelColors.json')))[body.action.data.label.color];
             } 
         } else if (body.action.type === 'createCard') {
             let cardName = body.action.data.card.name;
