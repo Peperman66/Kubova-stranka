@@ -28,7 +28,7 @@ router.post('/:webhookId/:webhookToken/:service', (req, res) => {
                 labelName = body.action.data.label.color;
             }
             webhookBody.embeds[0].title = `[${body.model.name}] A new label was added to ${"``" + body.action.data.card.name + "``"}`;
-            let description = `A \`\`${labelName}\`\` label was added to the ${"``" + body.action.data.card.name + "``"} card.`
+            let description = `\`\`${labelName}\`\` label was added to the ${"``" + body.action.data.card.name + "``"} card.`
             webhookBody.embeds[0].description = description;
             if (webhookBody.embeds[0].color != null) {
                 webhookBody.embeds[0].color = JSON.parse(fs.readFileSync(path.resolve('./labelColors.json')))[body.action.data.label.color];
@@ -39,7 +39,7 @@ router.post('/:webhookId/:webhookToken/:service', (req, res) => {
                 labelName = body.action.data.label.color;
             }
             webhookBody.embeds[0].title = `[${body.model.name}] A label was removed from ${"``" + body.action.data.card.name + "``"}`;
-            let description = `A \`\`${labelName}\`\` label was removed from the ${"``" + body.action.data.card.name + "``"} card.`
+            let description = `\`\`${labelName}\`\` label was removed from the ${"``" + body.action.data.card.name + "``"} card.`
             webhookBody.embeds[0].description = description;
             if (webhookBody.embeds[0].color != null) {
                 webhookBody.embeds[0].color = JSON.parse(fs.readFileSync(path.resolve('./labelColors.json')))[body.action.data.label.color];
@@ -50,7 +50,7 @@ router.post('/:webhookId/:webhookToken/:service', (req, res) => {
                 cardName = 'blank';
             }
             webhookBody.embeds[0].title = `[${body.model.name}] A new card was created in ${"``" + body.action.data.list.name + "``"} list`;
-            let description = `A \`\`${cardName}\`\` card was created in the ${"``" + body.action.data.list.name + "``"} list.`;
+            let description = `\`\`${cardName}\`\` card was created in the ${"``" + body.action.data.list.name + "``"} list.`;
             webhookBody.embeds[0].description = description;
         } else if (body.action.type === 'addMemberToCard') {
             let cardName = body.action.data.card.name;
