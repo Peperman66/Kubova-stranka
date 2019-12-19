@@ -44,6 +44,14 @@ router.post('/:webhookId/:webhookToken/:service', (req, res) => {
             if (webhookBody.embeds[0].color != null) {
                 webhookBody.embeds[0].color = JSON.parse(fs.readFileSync(path.resolve('./labelColors.json')))[body.action.data.label.color];
             } 
+        } else if (body.action.type === 'createCard') {
+            let cardName = body.action.data.card.name;
+            if (cardName == '') {
+                cardName = 'blank';
+            }
+            webhookBody.embeds[0].title = `[${body.model.name}] A new card was created in ${"``" + body.action.data.list.name + "``"} list`;
+            let description = `A \`\`${cardName}\`\` card was created in the ${"``" + body.action.data.list.name + "``"} list.`;
+            webhookBody.embeds[0].description = description;
         } else {
             res.header('Retry-After', '600');
             res.status(504).end();
