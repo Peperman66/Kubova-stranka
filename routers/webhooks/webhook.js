@@ -58,7 +58,7 @@ router.post('/:webhookId/:webhookToken/:service', (req, res) => {
                 cardName = 'blank';
             }
             webhookBody.embeds[0].title = `[${body.model.name}] A member was assigned to ${"``" + cardName + "``"}`;
-            let description = `\`\`${body.action.data.member.fullName}\`\` was assigned to the ${"``" + cardName + "``"} card.`;
+            let description = `\`\`${body.action.data.member.name}\`\` was assigned to the ${"``" + cardName + "``"} card.`;
             webhookBody.embeds[0].description = description;
         } else if (body.action.type === 'removeMemberFromCard') {
             let cardName = body.action.data.card.name;
@@ -66,7 +66,7 @@ router.post('/:webhookId/:webhookToken/:service', (req, res) => {
                 cardName = 'blank';
             }
             webhookBody.embeds[0].title = `[${body.model.name}] A member was removed from ${"``" + cardName + "``"}`;
-            let description = `\`\`${body.action.data.member.fullName}\`\` was removed from the ${"``" + cardName + "``"} card.`;
+            let description = `\`\`${body.action.data.member.name}\`\` was removed from the ${"``" + cardName + "``"} card.`;
             webhookBody.embeds[0].description = description;
         } else {
             res.header('Retry-After', '600');
