@@ -43,6 +43,7 @@ router.post('/:webhookId/:webhookToken/:service', (req, res) => {
             } else {
                 res.statusCode(502).end();
                 console.log(response.statusCode);
+                response.on('data', (data) => console.log(data.toString()));
             }
         });
         request.write(webhookBody);
