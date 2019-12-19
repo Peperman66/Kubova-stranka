@@ -2,6 +2,7 @@ const express = require('express');
 const path = require('path');
 const router = express.Router();
 const https = require('https');
+const fs = require('fs');
 
 router.post('/:webhookId/:webhookToken/:service', (req, res) => {
     const discordAddress = `/api/webhooks/${req.params.webhookId}/${req.params.webhookToken}`;
@@ -23,8 +24,22 @@ router.post('/:webhookId/:webhookToken/:service', (req, res) => {
         }
         if (body.action.type === 'addLabelToCard') {
             webhookBody.embeds[0].title = `[${body.model.name}] A new label was added to ${"``" + body.action.data.card.name + "``"}`;
-            let description = `A \`\`${body.action.data.card.label}\`\` label was added to the ${"``" + body.action.data.card.name + "``"} card.`
+            let description = `A \`\`${body.action.data.label.name}\`\` label was added to the ${"``" + body.action.data.card.name + "``"} card.`
             webhookBody.embeds[0].description = description;
+            if (webhookBody.embeds[0].color != null) {
+                webhookBody.embeds[0].color = JSON.parse(fs.readFileSync(path.resolve('./labelColors.json')))[body.action.data.label.color];
+            } 
+        } else if (body.action.type === 'removeLabelFromCard') {
+            webhookBody.embeds[0].title = `[${body.model.name}] A label was removed from ${"``" + body.action.data.card.name + "``"}`;
+            let description = `A \`\`${body.action.data.label.name}\`\` label was removed from the ${"``" + body.action.data.card.name + "``"} card.`
+            webhookBody.embeds[0].description = description;
+            if (webhookBody.embeds[0].color != null) {
+                webhookBody.embeds[0].color = JSON.parse(fs.readFileSync(path.resolve('./labelColors.json')))[body.action.data.label.color];
+            } 
+        } else {
+            res.header('Retry-After', '600');
+            res.status(504).end();
+            return;
         }
         webhookBody = JSON.stringify(webhookBody);
         let postOptions = {
