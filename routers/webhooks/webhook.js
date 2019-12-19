@@ -17,7 +17,7 @@ router.post('/:webhookId/:webhookToken/:service', (req, res) => {
                         url: `https://trello.com/${body.action.memberCreator.username}`
                     },
                     url: body.model.url,
-                    timestamp: Date.parse(body.action.date)
+                    timestamp: body.action.date
                 }
             ]
         }
