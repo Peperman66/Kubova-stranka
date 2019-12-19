@@ -38,13 +38,15 @@ router.post('/:webhookId/:webhookToken/:service', (req, res) => {
             },
             body: webhookBody
         }
-        https.request(postOptions, (response) => {
+        let request = https.request(postOptions, (response) => {
             if (response.statusCode == 200 || response.statusCode == 204) {
                 res.statusCode(204).end();
             } else {
+                res.statusCode(502).end();
                 console.log(response.statusCode);
             }
         });
+        request.end();
     } else {
         res.status(400).json({});
         console.log(service);
@@ -63,14 +65,15 @@ router.head('/:webhookId/:webhookToken/:service', (req, res) => {
             'Content-Type': 'application/json',
         }
     }
-    https.request(requestOptions, (response) => {
+    let request = https.request(requestOptions, (response) => {
         if (response.statusCode == 200) {
             res.headers = response.headers;
             res.status(200).end();
         } else {
-            res.status(response.statusCode).end()
+            res.status(502).end();
         }
-    })
+    });
+    request.end();
 })
 
 module.exports = router;
