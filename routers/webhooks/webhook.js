@@ -35,8 +35,7 @@ router.post('/:webhookId/:webhookToken/:service', (req, res) => {
             headers: {
                 'Content-Type': 'application/json',
                 'Content-Length': Buffer.byteLength(webhookBody)
-            },
-            body: webhookBody
+            }
         }
         let request = https.request(postOptions, (response) => {
             if (response.statusCode == 200 || response.statusCode == 204) {
@@ -46,6 +45,7 @@ router.post('/:webhookId/:webhookToken/:service', (req, res) => {
                 console.log(response.statusCode);
             }
         });
+        request.write(webhookBody);
         request.end();
     } else {
         res.status(400).json({});
